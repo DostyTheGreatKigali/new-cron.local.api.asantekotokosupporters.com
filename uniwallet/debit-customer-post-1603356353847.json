@@ -1,0 +1,1 @@
+body {"uniwalletTransactionId":"1603356350810","networkTransactionId":null,"refNo":"1603356348910","merchantId":"2029","productId":"2","msisdn":"233549063668","amount":"1.00","timestamp":"2020-10-22 08:45:52","responseCode":"121","responseMessage":"The specified destination route is not enabled for this product: MTN|Test"} params {} query {}
