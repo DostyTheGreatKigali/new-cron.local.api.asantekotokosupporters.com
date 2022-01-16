@@ -734,7 +734,11 @@ async function sendCancelRequestsExcludeMandateId(finalArray, mandateId) {
 
     // var response = await fetch(url);
     var postUrl = DIRECT_DEBIT_BASE_URL + '/mobiledebit/cancel/mandate';
+    
     await asyncForEach(finalArray, async (item) => {
+
+        // console.log("Item For Checking 3rd Party Transaction's KEY")
+        // console.log(item)
 
         if (!item.hasOwnProperty('clientPhone') || !item.hasOwnProperty('mandateId')) {
             return false; // in await for each we DON'T USE continue
@@ -743,7 +747,32 @@ async function sendCancelRequestsExcludeMandateId(finalArray, mandateId) {
        // CANCELLING ALL MANDATES EXCEPT RECENTLY SUCCESSFULLY CREATED ONE   
         if (item.mandateId == mandateId) {
             return false;
-          }
+        }
+
+    var getConfig = {
+            headers: {
+                'Content-Length': 0,
+                'Content-Type': 'text/plain'
+            },
+            responseType: 'text'
+        };
+
+    // If 3rd Party Reference is already "Cancelled", do return
+    var getUrl = DIRECT_DEBIT_BASE_URL + '/mobiledebit/mandate/status/' + item.thirdPartyReferenceNo;
+
+          fastify.axios.get(getUrl)
+                        .then(response => {
+                          console.log("logging response data after hitting mandate status route")
+                          console.log(response.data);
+            if(response.data.status == 'Cancelled') {
+                return;
+            }
+
+            // return {success: true, text: 'received'};
+        })
+                        .catch(err => {
+                          console.error(err);
+        });
   
         console.log('Item print out ');
         console.log(item);
