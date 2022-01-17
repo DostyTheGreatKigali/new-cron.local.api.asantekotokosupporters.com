@@ -210,7 +210,7 @@ fastify.get('/spawn/number/cancel/:phone', async (request, reply) => {
     return { home: 'welcome home from ' + api_base_url }
 })
 
-fastify.get('/spawn/number/cancel/:phone/:exclude_mandate_id', async (request, reply) => {    
+fastify.get('/spawn/number/cancel/:phone/:exclude_mandate_id', async (request, reply) => {
     // const ls = spawn("grep", ["-r", "'233549063668'", "/var/www/callback.asantekotokosupporters.com/storage/app/"]);
     // // grep -r '233549063668' /var/www/callback.asantekotokosupporters.com/storage/app/
     // ls.stdout.on("data", data => {
@@ -251,7 +251,7 @@ fastify.get('/spawn/number/cancel/:phone/:exclude_mandate_id', async (request, r
         console.log(fs.existsSync(fileDumpPath) ? 'File created' : 'File Not created')
 
         // let spawnUrl = api_base_url + '/spawn/cancel/await/' + phone;
-        let spawnUrl = api_base_url + '/spawn/cancel/await/' + phone+'/'+mandateId;
+        let spawnUrl = api_base_url + '/spawn/cancel/await/' + phone + '/' + mandateId;
 
         fastify.axios.get(spawnUrl)
             .then(response => {
@@ -657,7 +657,7 @@ start()
 fastify.ready().then(() => {
     console.log('successfully booted!')
 
-     // checkAndUpdateTransactions();
+    // checkAndUpdateTransactions();
 
 
 }, (err) => {
@@ -734,7 +734,7 @@ async function sendCancelRequestsExcludeMandateId(finalArray, mandateId) {
 
     // var response = await fetch(url);
     var postUrl = DIRECT_DEBIT_BASE_URL + '/mobiledebit/cancel/mandate';
-    
+
     await asyncForEach(finalArray, async (item) => {
 
         // console.log("Item For Checking 3rd Party Transaction's KEY")
@@ -744,12 +744,12 @@ async function sendCancelRequestsExcludeMandateId(finalArray, mandateId) {
             return false; // in await for each we DON'T USE continue
         }
 
-       // CANCELLING ALL MANDATES EXCEPT RECENTLY SUCCESSFULLY CREATED ONE   
+        // CANCELLING ALL MANDATES EXCEPT RECENTLY SUCCESSFULLY CREATED ONE   
         if (item.mandateId == mandateId) {
             return false;
         }
 
-    var getConfig = {
+        var getConfig = {
             headers: {
                 'Content-Length': 0,
                 'Content-Type': 'text/plain'
@@ -757,23 +757,23 @@ async function sendCancelRequestsExcludeMandateId(finalArray, mandateId) {
             responseType: 'text'
         };
 
-    // If 3rd Party Reference is already "Cancelled", do return
-    var getUrl = DIRECT_DEBIT_BASE_URL + '/mobiledebit/mandate/status/' + item.thirdPartyReferenceNo;
+        // If 3rd Party Reference is already "Cancelled", do return
+        var getUrl = DIRECT_DEBIT_BASE_URL + '/mobiledebit/mandate/status/' + item.thirdPartyReferenceNo;
 
-          fastify.axios.get(getUrl)
-                        .then(response => {
-                          console.log("logging response data after hitting mandate status route")
-                          console.log(response.data);
-            if(response.data.status == 'Cancelled') {
-                return;
-            }
+        // fastify.axios.get(getUrl)
+        //     .then(response => {
+        //         console.log("logging response data after hitting mandate status route")
+        //         console.log(response.data);
+        //         if (response.data.status == 'Cancelled') {
+        //             return;
+        //         }
 
-            // return {success: true, text: 'received'};
-        })
-                        .catch(err => {
-                          console.error(err);
-        });
-  
+        //         // return {success: true, text: 'received'};
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //     });
+
         console.log('Item print out ');
         console.log(item);
 
@@ -785,8 +785,15 @@ async function sendCancelRequestsExcludeMandateId(finalArray, mandateId) {
             "apiKey": DIRECT_DEBIT_API_KEY
         }
         try {
-            const { data: jsonPostData, status: jsonPostStatus } = await fastify.axios.post(postUrl, postData, postConfig);
-            console.log(jsonPostData);
+            const { data: jsonGetData, status: jsonGetStatus } = await fastify.axios.get(getUrl);
+            console.log(jsonGetData);
+
+            if (jsonGetData.status !== 'Cancelled') {
+                const { data: jsonPostData, status: jsonPostStatus } = await fastify.axios.post(postUrl, postData, postConfig);
+                console.log(jsonPostData);
+            } else {
+                console.log('STATUS IS CANCELLED SO SKIPPED')
+            }
         } catch (err) {
 
             console.log(err)
